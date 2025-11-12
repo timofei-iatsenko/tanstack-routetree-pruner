@@ -8,199 +8,199 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as Level1BRouteRouteImport } from "./routes/level-1-b/route";
-import { Route as Level1RouteRouteImport } from "./routes/level-1/route";
-import { Route as Level1Level2RouteRouteImport } from "./routes/level-1/level-2/route";
-import { Route as Level1BLevel2BRouteRouteImport } from "./routes/level-1-b/level-2-b/route";
-import { Route as Level1Level2Level3RouteImport } from "./routes/level-1/level-2/level-3";
-import { Route as Level1BLevel2BLevel3BRouteImport } from "./routes/level-1-b/level-2-b/level-3-b";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as Level1BRouteRouteImport } from './routes/level-1-b/route'
+import { Route as Level1RouteRouteImport } from './routes/level-1/route'
+import { Route as Level1Level2RouteRouteImport } from './routes/level-1/level-2/route'
+import { Route as Level1BLevel2BRouteRouteImport } from './routes/level-1-b/level-2-b/route'
+import { Route as Level1Level2Level3RouteImport } from './routes/level-1/level-2/level-3'
+import { Route as Level1BLevel2BLevel3BRouteImport } from './routes/level-1-b/level-2-b/level-3-b'
 
 const Level1BRouteRoute = Level1BRouteRouteImport.update({
-  id: "/level-1-b",
-  path: "/level-1-b",
+  id: '/level-1-b',
+  path: '/level-1-b',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const Level1RouteRoute = Level1RouteRouteImport.update({
-  id: "/level-1",
-  path: "/level-1",
+  id: '/level-1',
+  path: '/level-1',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const Level1Level2RouteRoute = Level1Level2RouteRouteImport.update({
-  id: "/level-2",
-  path: "/level-2",
+  id: '/level-2',
+  path: '/level-2',
   getParentRoute: () => Level1RouteRoute,
-} as any);
+} as any)
 const Level1BLevel2BRouteRoute = Level1BLevel2BRouteRouteImport.update({
-  id: "/level-2-b",
-  path: "/level-2-b",
+  id: '/level-2-b',
+  path: '/level-2-b',
   getParentRoute: () => Level1BRouteRoute,
-} as any);
+} as any)
 const Level1Level2Level3Route = Level1Level2Level3RouteImport.update({
-  id: "/level-3",
-  path: "/level-3",
+  id: '/level-3',
+  path: '/level-3',
   getParentRoute: () => Level1Level2RouteRoute,
-} as any);
+} as any)
 const Level1BLevel2BLevel3BRoute = Level1BLevel2BLevel3BRouteImport.update({
-  id: "/level-3-b",
-  path: "/level-3-b",
+  id: '/level-3-b',
+  path: '/level-3-b',
   getParentRoute: () => Level1BLevel2BRouteRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/level-1": typeof Level1RouteRouteWithChildren;
-  "/level-1-b": typeof Level1BRouteRouteWithChildren;
-  "/level-1-b/level-2-b": typeof Level1BLevel2BRouteRouteWithChildren;
-  "/level-1/level-2": typeof Level1Level2RouteRouteWithChildren;
-  "/level-1-b/level-2-b/level-3-b": typeof Level1BLevel2BLevel3BRoute;
-  "/level-1/level-2/level-3": typeof Level1Level2Level3Route;
+  '/level-1': typeof Level1RouteRouteWithChildren
+  '/level-1-b': typeof Level1BRouteRouteWithChildren
+  '/level-1-b/level-2-b': typeof Level1BLevel2BRouteRouteWithChildren
+  '/level-1/level-2': typeof Level1Level2RouteRouteWithChildren
+  '/level-1-b/level-2-b/level-3-b': typeof Level1BLevel2BLevel3BRoute
+  '/level-1/level-2/level-3': typeof Level1Level2Level3Route
 }
 export interface FileRoutesByTo {
-  "/level-1": typeof Level1RouteRouteWithChildren;
-  "/level-1-b": typeof Level1BRouteRouteWithChildren;
-  "/level-1-b/level-2-b": typeof Level1BLevel2BRouteRouteWithChildren;
-  "/level-1/level-2": typeof Level1Level2RouteRouteWithChildren;
-  "/level-1-b/level-2-b/level-3-b": typeof Level1BLevel2BLevel3BRoute;
-  "/level-1/level-2/level-3": typeof Level1Level2Level3Route;
+  '/level-1': typeof Level1RouteRouteWithChildren
+  '/level-1-b': typeof Level1BRouteRouteWithChildren
+  '/level-1-b/level-2-b': typeof Level1BLevel2BRouteRouteWithChildren
+  '/level-1/level-2': typeof Level1Level2RouteRouteWithChildren
+  '/level-1-b/level-2-b/level-3-b': typeof Level1BLevel2BLevel3BRoute
+  '/level-1/level-2/level-3': typeof Level1Level2Level3Route
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/level-1": typeof Level1RouteRouteWithChildren;
-  "/level-1-b": typeof Level1BRouteRouteWithChildren;
-  "/level-1-b/level-2-b": typeof Level1BLevel2BRouteRouteWithChildren;
-  "/level-1/level-2": typeof Level1Level2RouteRouteWithChildren;
-  "/level-1-b/level-2-b/level-3-b": typeof Level1BLevel2BLevel3BRoute;
-  "/level-1/level-2/level-3": typeof Level1Level2Level3Route;
+  __root__: typeof rootRouteImport
+  '/level-1': typeof Level1RouteRouteWithChildren
+  '/level-1-b': typeof Level1BRouteRouteWithChildren
+  '/level-1-b/level-2-b': typeof Level1BLevel2BRouteRouteWithChildren
+  '/level-1/level-2': typeof Level1Level2RouteRouteWithChildren
+  '/level-1-b/level-2-b/level-3-b': typeof Level1BLevel2BLevel3BRoute
+  '/level-1/level-2/level-3': typeof Level1Level2Level3Route
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/level-1"
-    | "/level-1-b"
-    | "/level-1-b/level-2-b"
-    | "/level-1/level-2"
-    | "/level-1-b/level-2-b/level-3-b"
-    | "/level-1/level-2/level-3";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/level-1'
+    | '/level-1-b'
+    | '/level-1-b/level-2-b'
+    | '/level-1/level-2'
+    | '/level-1-b/level-2-b/level-3-b'
+    | '/level-1/level-2/level-3'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/level-1"
-    | "/level-1-b"
-    | "/level-1-b/level-2-b"
-    | "/level-1/level-2"
-    | "/level-1-b/level-2-b/level-3-b"
-    | "/level-1/level-2/level-3";
+    | '/level-1'
+    | '/level-1-b'
+    | '/level-1-b/level-2-b'
+    | '/level-1/level-2'
+    | '/level-1-b/level-2-b/level-3-b'
+    | '/level-1/level-2/level-3'
   id:
-    | "__root__"
-    | "/level-1"
-    | "/level-1-b"
-    | "/level-1-b/level-2-b"
-    | "/level-1/level-2"
-    | "/level-1-b/level-2-b/level-3-b"
-    | "/level-1/level-2/level-3";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/level-1'
+    | '/level-1-b'
+    | '/level-1-b/level-2-b'
+    | '/level-1/level-2'
+    | '/level-1-b/level-2-b/level-3-b'
+    | '/level-1/level-2/level-3'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  Level1RouteRoute: typeof Level1RouteRouteWithChildren;
-  Level1BRouteRoute: typeof Level1BRouteRouteWithChildren;
+  Level1RouteRoute: typeof Level1RouteRouteWithChildren
+  Level1BRouteRoute: typeof Level1BRouteRouteWithChildren
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/level-1-b": {
-      id: "/level-1-b";
-      path: "/level-1-b";
-      fullPath: "/level-1-b";
-      preLoaderRoute: typeof Level1BRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/level-1": {
-      id: "/level-1";
-      path: "/level-1";
-      fullPath: "/level-1";
-      preLoaderRoute: typeof Level1RouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/level-1/level-2": {
-      id: "/level-1/level-2";
-      path: "/level-2";
-      fullPath: "/level-1/level-2";
-      preLoaderRoute: typeof Level1Level2RouteRouteImport;
-      parentRoute: typeof Level1RouteRoute;
-    };
-    "/level-1-b/level-2-b": {
-      id: "/level-1-b/level-2-b";
-      path: "/level-2-b";
-      fullPath: "/level-1-b/level-2-b";
-      preLoaderRoute: typeof Level1BLevel2BRouteRouteImport;
-      parentRoute: typeof Level1BRouteRoute;
-    };
-    "/level-1/level-2/level-3": {
-      id: "/level-1/level-2/level-3";
-      path: "/level-3";
-      fullPath: "/level-1/level-2/level-3";
-      preLoaderRoute: typeof Level1Level2Level3RouteImport;
-      parentRoute: typeof Level1Level2RouteRoute;
-    };
-    "/level-1-b/level-2-b/level-3-b": {
-      id: "/level-1-b/level-2-b/level-3-b";
-      path: "/level-3-b";
-      fullPath: "/level-1-b/level-2-b/level-3-b";
-      preLoaderRoute: typeof Level1BLevel2BLevel3BRouteImport;
-      parentRoute: typeof Level1BLevel2BRouteRoute;
-    };
+    '/level-1-b': {
+      id: '/level-1-b'
+      path: '/level-1-b'
+      fullPath: '/level-1-b'
+      preLoaderRoute: typeof Level1BRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/level-1': {
+      id: '/level-1'
+      path: '/level-1'
+      fullPath: '/level-1'
+      preLoaderRoute: typeof Level1RouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/level-1/level-2': {
+      id: '/level-1/level-2'
+      path: '/level-2'
+      fullPath: '/level-1/level-2'
+      preLoaderRoute: typeof Level1Level2RouteRouteImport
+      parentRoute: typeof Level1RouteRoute
+    }
+    '/level-1-b/level-2-b': {
+      id: '/level-1-b/level-2-b'
+      path: '/level-2-b'
+      fullPath: '/level-1-b/level-2-b'
+      preLoaderRoute: typeof Level1BLevel2BRouteRouteImport
+      parentRoute: typeof Level1BRouteRoute
+    }
+    '/level-1/level-2/level-3': {
+      id: '/level-1/level-2/level-3'
+      path: '/level-3'
+      fullPath: '/level-1/level-2/level-3'
+      preLoaderRoute: typeof Level1Level2Level3RouteImport
+      parentRoute: typeof Level1Level2RouteRoute
+    }
+    '/level-1-b/level-2-b/level-3-b': {
+      id: '/level-1-b/level-2-b/level-3-b'
+      path: '/level-3-b'
+      fullPath: '/level-1-b/level-2-b/level-3-b'
+      preLoaderRoute: typeof Level1BLevel2BLevel3BRouteImport
+      parentRoute: typeof Level1BLevel2BRouteRoute
+    }
   }
 }
 
 interface Level1Level2RouteRouteChildren {
-  Level1Level2Level3Route: typeof Level1Level2Level3Route;
+  Level1Level2Level3Route: typeof Level1Level2Level3Route
 }
 
 const Level1Level2RouteRouteChildren: Level1Level2RouteRouteChildren = {
   Level1Level2Level3Route: Level1Level2Level3Route,
-};
+}
 
 const Level1Level2RouteRouteWithChildren =
-  Level1Level2RouteRoute._addFileChildren(Level1Level2RouteRouteChildren);
+  Level1Level2RouteRoute._addFileChildren(Level1Level2RouteRouteChildren)
 
 interface Level1RouteRouteChildren {
-  Level1Level2RouteRoute: typeof Level1Level2RouteRouteWithChildren;
+  Level1Level2RouteRoute: typeof Level1Level2RouteRouteWithChildren
 }
 
 const Level1RouteRouteChildren: Level1RouteRouteChildren = {
   Level1Level2RouteRoute: Level1Level2RouteRouteWithChildren,
-};
+}
 
 const Level1RouteRouteWithChildren = Level1RouteRoute._addFileChildren(
   Level1RouteRouteChildren,
-);
+)
 
 interface Level1BLevel2BRouteRouteChildren {
-  Level1BLevel2BLevel3BRoute: typeof Level1BLevel2BLevel3BRoute;
+  Level1BLevel2BLevel3BRoute: typeof Level1BLevel2BLevel3BRoute
 }
 
 const Level1BLevel2BRouteRouteChildren: Level1BLevel2BRouteRouteChildren = {
   Level1BLevel2BLevel3BRoute: Level1BLevel2BLevel3BRoute,
-};
+}
 
 const Level1BLevel2BRouteRouteWithChildren =
-  Level1BLevel2BRouteRoute._addFileChildren(Level1BLevel2BRouteRouteChildren);
+  Level1BLevel2BRouteRoute._addFileChildren(Level1BLevel2BRouteRouteChildren)
 
 interface Level1BRouteRouteChildren {
-  Level1BLevel2BRouteRoute: typeof Level1BLevel2BRouteRouteWithChildren;
+  Level1BLevel2BRouteRoute: typeof Level1BLevel2BRouteRouteWithChildren
 }
 
 const Level1BRouteRouteChildren: Level1BRouteRouteChildren = {
   Level1BLevel2BRouteRoute: Level1BLevel2BRouteRouteWithChildren,
-};
+}
 
 const Level1BRouteRouteWithChildren = Level1BRouteRoute._addFileChildren(
   Level1BRouteRouteChildren,
-);
+)
 
 const rootRouteChildren: RootRouteChildren = {
   Level1RouteRoute: Level1RouteRouteWithChildren,
   Level1BRouteRoute: Level1BRouteRouteWithChildren,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()

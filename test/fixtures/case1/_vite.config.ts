@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import path from "path";
-import TanStackRouteTreePrunerPlugin from "../../../src/tanstack-route-tree-pruner-plugin.js";
+import TanStackRouteTreePrunerPlugin from "../../../src";
 import TanStackRouterVite from "@tanstack/router-plugin/vite";
 
 export default defineConfig({

@@ -1,0 +1,54 @@
+{
+  "name": "tanstack-routetree-pruner",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timofei-iatsenko/tanstack-routetree-pruner.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.mjs",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "format:check": "prettier . --check --ignore-unknown",
+    "format:fix": "prettier . --write --ignore-unknown",
+    "prepare": "husky",
+    "release": "pnpm build && release-it",
+    "test": "vitest --run"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^9.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "prettier-plugin-packagejson": "^2.5.6",
+    "release-it": "^17.10.0",
+    "unbuild": "2.0.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+
+  },
+  "peerDependenciesMeta": {},
+  "packageManager": "pnpm@9.14.2+sha512.6e2baf77d06b9362294152c851c4f278ede37ab1eba3a55fda317a4a17b209f4dbb973fb250a77abc463a341fcb1f17f17cfa24091c4eb319cda0d9b84278387"
+}

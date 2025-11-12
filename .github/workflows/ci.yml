@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+
+env:
+  CI: true
+
+jobs:
+  validate:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Prettier
+        run: pnpm format:check
+
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Test
+        run: pnpm test
+
+  test-example:
+    #    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    name: Build Lib & Smoke test example
+    #    strategy:
+    #      matrix:
+    #        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: cd ./example && pnpm build-keycloak-theme

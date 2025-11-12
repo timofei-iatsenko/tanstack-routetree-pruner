@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/level-1')({
+export const Route = createFileRoute("/level-1")({
   component: () => {},
-})
+});

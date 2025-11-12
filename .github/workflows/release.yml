@@ -49,8 +49,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm i
 
-      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
       - run: pnpm release
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}

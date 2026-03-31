@@ -11,7 +11,7 @@ export default defineConfig({
       fileName: "bundle",
       formats: ["es"],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ["@tanstack/react-router"],
     },
   },

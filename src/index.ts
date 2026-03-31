@@ -23,41 +23,46 @@ export default function TanstackRouteTreePrunerPlugin(rootDir: string): Plugin {
   return {
     name: "tanstack-route-tree-pruner",
     enforce: "pre",
-
     // 2. Load the virtual module content
-    load(id) {
-      if (!id.endsWith(SUFFIX)) {
-        return null;
-      }
 
-      const relativeRoutePath =
-        "./" +
-        path
-          .relative(rootDir, id.slice(0, -SUFFIX.length))
-          .replace(/\.tsx?$/, "");
+    load: {
+      filter: {
+        id: new RegExp(".*\\?" + SUFFIX + "$"),
+      },
+      handler(id) {
+        if (!id.endsWith(SUFFIX)) {
+          return null;
+        }
 
-      if (!fs.existsSync(routeTreePath)) {
-        const msg = `${ROUTE_TREE_FILE} not found.`;
-        this.warn(msg);
-        return getErrorModuleSource(msg);
-      }
+        const relativeRoutePath =
+          "./" +
+          path
+            .relative(rootDir, id.slice(0, -SUFFIX.length))
+            .replace(/\.tsx?$/, "");
 
-      this.addWatchFile(routeTreePath);
+        if (!fs.existsSync(routeTreePath)) {
+          const msg = `${ROUTE_TREE_FILE} not found.`;
+          this.warn(msg);
+          return getErrorModuleSource(msg);
+        }
 
-      const routeTreeContent = fs.readFileSync(routeTreePath, "utf-8");
+        this.addWatchFile(routeTreePath);
 
-      try {
-        // Delegate the heavy lifting to the core pruner logic
-        const prunedContent = pruneRouteTree(
-          routeTreeContent,
-          relativeRoutePath,
-        );
-        return prunedContent;
-      } catch (e) {
-        const error = e as Error;
-        this.warn(error.message);
-        return getErrorModuleSource(error.message);
-      }
+        const routeTreeContent = fs.readFileSync(routeTreePath, "utf-8");
+
+        try {
+          // Delegate the heavy lifting to the core pruner logic
+          const prunedContent = pruneRouteTree(
+            routeTreeContent,
+            relativeRoutePath,
+          );
+          return prunedContent;
+        } catch (e) {
+          const error = e as Error;
+          this.warn(error.message);
+          return getErrorModuleSource(error.message);
+        }
+      },
     },
   };
 }

@@ -23,17 +23,10 @@ jobs:
         startsWith(github.event.head_commit.message, 'docs:')
       )
     steps:
-      - name: "Generate token"
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ secrets.RELEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - name: Checkout Repo
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
       - name: git config
         run: |
           git config user.name "${GITHUB_ACTOR}"
@@ -51,4 +44,5 @@ jobs:
 
       - run: pnpm release
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

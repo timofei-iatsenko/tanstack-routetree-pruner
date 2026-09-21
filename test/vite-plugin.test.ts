@@ -26,6 +26,10 @@ describe("vite-plugin", () => {
       ----/level-1/level-2
       ------/level-1/level-2/level-3"
     `);
+
+    const route = bundle.Route as Route;
+    route.init({ originalIndex: 0 });
+    expect(route.id).toBe("/level-1/level-2/level-3");
   });
 });
 

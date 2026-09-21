@@ -8,7 +8,7 @@ const ROUTE_TREE_FILE = "routeTree.gen.ts"; // Assumed to be in project root for
 
 function getErrorModuleSource(errorMessage: string) {
   // Prefix the error message so the user knows where it came from
-  return `export const routeTree = {}; throw new Error("RouteTreePruner: ${errorMessage}");`;
+  return `export const routeTree = {}; export const Route = {}; throw new Error("RouteTreePruner: ${errorMessage}");`;
 }
 
 /**

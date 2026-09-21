@@ -1,1 +1,1 @@
-export { routeTree } from "./level-3.tsx?tree";
+export { routeTree, Route } from "./level-3.tsx?tree";

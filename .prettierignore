@@ -1,3 +1,4 @@
 .changeset
 pnpm-lock.yaml
 routeTree.gen.ts
+CHANGELOG.md

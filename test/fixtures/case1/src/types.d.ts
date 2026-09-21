@@ -1,4 +1,5 @@
 declare module "*?tree" {
-  import { Route } from "@tanstack/react-router";
-  export const routeTree: Route;
+  import type { Route as RouteType } from "@tanstack/react-router";
+  export const routeTree: RouteType;
+  export const Route: RouteType;
 }

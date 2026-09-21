@@ -252,6 +252,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteImportWithChildren
 
+      export { Level1Level2Level3RouteImport as Route }
       "
     `);
   });
@@ -300,6 +301,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteBlaBlaWithChildren
 
+      export { Level1Level2Level3RouteImport as Route }
       "
     `);
   });
@@ -332,6 +334,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteImportWithChildren
 
+      export { Level1RouteRouteImport as Route }
       "
     `);
   });

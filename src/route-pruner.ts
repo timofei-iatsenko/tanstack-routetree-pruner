@@ -220,5 +220,6 @@ export function pruneRouteTree(
     );
   }
 
-  return traceAncestry(targetRouteMap);
+  const result = traceAncestry(targetRouteMap);
+  return result + `export { ${targetRouteMap.import.importName} as Route }\n`;
 }

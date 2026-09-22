@@ -27,6 +27,7 @@ export default function TanstackRouteTreePrunerPlugin(rootDir: string): Plugin {
 
     load: {
       filter: {
+
         id: new RegExp(".*\\?" + SUFFIX + "$"),
       },
       handler(id) {

@@ -152,6 +152,7 @@ function parseRouteTree(content: string, targetRelativePath: string) {
  */
 function traceAncestry(
   current: RouteMapping,
+  rootConstName: string,
   requiredImports: string[] = [],
   requiredDefs: string[] = [],
   children: string[] = [],
@@ -165,7 +166,17 @@ function traceAncestry(
   requiredImports.push(current.import.importCode);
 
   if (current.definitionCode) {
-    requiredDefs.push(current.definitionCode);
+    let clonedDef = current.definitionCode.replace(
+      `${current.import.importName}.update({`,
+      `createRoute({}).update({...${current.import.importName}.options,`,
+    );
+    if (current.parent?.routeConstName === rootConstName) {
+      clonedDef = clonedDef.replace(
+        `() => ${rootConstName}`,
+        `() => ${rootConstName}Clone`,
+      );
+    }
+    requiredDefs.push(clonedDef);
   }
 
   if (!parent) {
@@ -175,23 +186,36 @@ function traceAncestry(
     const routeDefinitions = requiredDefs.join("\n\n");
     const childrenCode = children.join("\n\n");
 
+    const rootCloneName = `${current.routeConstName}Clone`;
+    const rootCloneDef = `const ${rootCloneName} = createRootRoute({...${current.routeConstName}.options})`;
+    const exportName =
+      level > 0 ? `${rootCloneName}WithChildren` : rootCloneName;
+
     return `
+import { createRoute, createRootRoute } from '@tanstack/react-router'
 ${imports}
 
 ${routeDefinitions}
+${rootCloneDef}
 ${childrenCode}
 
-export const routeTree = ${currName}\n\n`;
+export const routeTree = ${exportName}\n\n`;
   }
 
+  const parentName =
+    parent.routeConstName === rootConstName
+      ? `${rootConstName}Clone`
+      : parent.routeConstName;
+
   // Define the parent with children
-  children.push(`const ${parent.routeConstName}WithChildren = ${parent.routeConstName}._addFileChildren({
+  children.push(`const ${parentName}WithChildren = ${parentName}._addFileChildren({
   ${currName},
 })`);
 
   // Recurse up the tree
   return traceAncestry(
     parent,
+    rootConstName,
     requiredImports,
     requiredDefs,
     children,
@@ -220,6 +244,14 @@ export function pruneRouteTree(
     );
   }
 
-  const result = traceAncestry(targetRouteMap);
-  return result + `export { ${targetRouteMap.import.importName} as Route }\n`;
+  const rootMapping = [...routeMappings.values()].find((m) =>
+    m.import.relativePath.endsWith("__root"),
+  );
+  const rootConstName = rootMapping?.routeConstName ?? "";
+
+  const result = traceAncestry(targetRouteMap, rootConstName);
+  const exportName = targetRouteMap.definitionCode
+    ? targetRouteMap.routeConstName
+    : `${targetRouteMap.routeConstName}Clone`;
+  return result + `export { ${exportName} as Route }\n`;
 }

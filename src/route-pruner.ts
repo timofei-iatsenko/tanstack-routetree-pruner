@@ -5,7 +5,9 @@ interface RouteMapping {
   routeConstName: string;
   parent?: RouteMapping;
   import: ImportDefinition;
-  routeOptionsCode: string;
+  idProp?: string;
+  pathProp?: string;
+  restOptionsCode: string;
 }
 
 interface ImportDefinition {
@@ -64,7 +66,9 @@ function parseRouteTree(content: string, targetRelativePath: string) {
     routeConstName: string;
     routeImportName: string;
     parentConstName: string | undefined;
-    routeOptionsCode: string;
+    idProp?: string;
+    pathProp?: string;
+    restOptionsCode: string;
   }
 
   const routeDeclarations: RouteDeclaration[] = [];
@@ -99,30 +103,38 @@ function parseRouteTree(content: string, targetRelativePath: string) {
       }
       if (arg.type !== "ObjectExpression") continue;
 
-      // Find getParentRoute property
       let parentRouteName: string | undefined;
+      let idProp: string | undefined;
+      let pathProp: string | undefined;
+      const restProps: string[] = [];
+
       for (const prop of arg.properties) {
-        if (prop.type !== "Property") continue;
-        if (
-          prop.key.type !== "Identifier" ||
-          prop.key.name !== "getParentRoute"
-        )
+        if (prop.type !== "Property" || prop.key.type !== "Identifier")
           continue;
 
-        if (
-          prop.value.type === "ArrowFunctionExpression" &&
-          prop.value.body.type === "Identifier"
-        ) {
-          parentRouteName = prop.value.body.name;
+        if (prop.key.name === "id") {
+          idProp = content.slice(prop.start, prop.end);
+        } else if (prop.key.name === "path") {
+          pathProp = content.slice(prop.start, prop.end);
+        } else {
+          restProps.push(content.slice(prop.start, prop.end));
+          if (
+            prop.key.name === "getParentRoute" &&
+            prop.value.type === "ArrowFunctionExpression" &&
+            prop.value.body.type === "Identifier"
+          ) {
+            parentRouteName = prop.value.body.name;
+          }
         }
-        break;
       }
 
       routeDeclarations.push({
         routeConstName: variableName,
         routeImportName: importName,
         parentConstName: parentRouteName,
-        routeOptionsCode: content.slice(arg.start, arg.end),
+        idProp,
+        pathProp,
+        restOptionsCode: restProps.join(",\n"),
       });
     }
   }
@@ -134,8 +146,8 @@ function parseRouteTree(content: string, targetRelativePath: string) {
   if (rootImport) {
     mappings.set(rootImport.importName, {
       routeConstName: rootImport.importName,
-      routeOptionsCode: "", // No .update() definition for root
       import: rootImport,
+      restOptionsCode: "",
     });
   }
 
@@ -143,21 +155,23 @@ function parseRouteTree(content: string, targetRelativePath: string) {
   for (const decl of routeDeclarations) {
     const {
       routeConstName,
-      routeOptionsCode,
       routeImportName,
       parentConstName,
+      idProp,
+      pathProp,
+      restOptionsCode,
     } = decl;
 
-    // Check if the route is defined using an imported variable
     const importData = importsMap.get(routeImportName);
 
-    // This check is primarily for safety; all defined routes should have importData.
     if (importData) {
       mappings.set(routeConstName, {
         routeConstName,
         parent: parentConstName ? mappings.get(parentConstName) : undefined,
-        routeOptionsCode,
         import: importData,
+        idProp,
+        pathProp,
+        restOptionsCode,
       });
     }
   }
@@ -183,9 +197,23 @@ function traceAncestry(
   // Add current route's import and definition
   requiredImports.push(current.import.importCode);
 
-  if (current.routeOptionsCode) {
-    let clonedDef = `const ${current.routeConstName} = createRoute(idOrPath({\n...${current.import.importName}.options,\n...${current.routeOptionsCode}\n}))`;
-    if (current.parent?.routeConstName === rootConstName) {
+  if (current.parent) {
+    const createRouteArgs = [`...${current.import.importName}.options`];
+    if (current.restOptionsCode) {
+      createRouteArgs.push(current.restOptionsCode);
+    }
+
+    const updateProps = [];
+    if (current.idProp) updateProps.push(current.idProp);
+    if (current.pathProp) updateProps.push(current.pathProp);
+
+    const updateCall =
+      updateProps.length > 0
+        ? `.update({\n${updateProps.join(",\n")},\n})`
+        : "";
+
+    let clonedDef = `const ${current.routeConstName} = createRoute({\n  ${createRouteArgs.join(",\n  ")},\n})${updateCall}`;
+    if (current.parent.routeConstName === rootConstName) {
       clonedDef = clonedDef.replace(
         `() => ${rootConstName}`,
         `() => ${rootConstName}Clone`,
@@ -209,16 +237,6 @@ function traceAncestry(
     return `
 import { createRoute, createRootRoute } from '@tanstack/react-router'
 ${imports}
-
-function idOrPath(input) {
-  const { id, path, ...rest } = input
-
-  if (path) {
-    return { path, ...rest }
-  }
-
-  return { id, ...rest }
-}
 
 ${routeDefinitions}
 ${rootCloneDef}
@@ -276,7 +294,7 @@ export function pruneRouteTree(
 
   const result = traceAncestry(targetRouteMap, rootConstName);
   const selfRelativePath = "./" + path.basename(targetRelativePath);
-  const exportName = targetRouteMap.routeOptionsCode
+  const exportName = targetRouteMap.parent
     ? targetRouteMap.routeConstName
     : `${targetRouteMap.routeConstName}Clone`;
   return (

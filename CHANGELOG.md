@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.4.1](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.4.0...0.4.1) (2026-09-23)
+
 # [0.4.0](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.3.0...0.4.0) (2026-09-23)
 
 

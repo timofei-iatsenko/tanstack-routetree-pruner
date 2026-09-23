@@ -251,5 +251,9 @@ export function pruneRouteTree(
 
   const result = traceAncestry(targetRouteMap, rootConstName);
   const selfRelativePath = "./" + path.basename(targetRelativePath);
-  return result + `export * from '${selfRelativePath}'\n`;
+  const targetImportName = targetRouteMap.import.importName;
+  return (
+    result +
+    `${targetImportName}.__root = routeTree\nexport * from '${selfRelativePath}'\n`
+  );
 }

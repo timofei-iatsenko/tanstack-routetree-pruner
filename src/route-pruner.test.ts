@@ -209,6 +209,59 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 `;
 
+const ROUTE_TREE_WITH_INDEX_ROUTE = `
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteRouteImport } from './routes/_app/route'
+import { Route as AppParentRouteRouteImport } from './routes/_app/parent/route'
+import { Route as AppParentIndexRouteImport } from './routes/_app/parent/index/route'
+
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppParentRouteRoute = AppParentRouteRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppParentIndexRouteRoute = AppParentIndexRouteImport.update({
+  id: '/',
+  path: '',
+  getParentRoute: () => AppParentRouteRoute,
+} as any)
+
+interface AppParentRouteRouteChildren {
+  AppParentIndexRouteRoute: typeof AppParentIndexRouteRoute
+}
+
+const AppParentRouteRouteChildren: AppParentRouteRouteChildren = {
+  AppParentIndexRouteRoute: AppParentIndexRouteRoute,
+}
+
+const AppParentRouteRouteWithChildren = AppParentRouteRoute._addFileChildren(
+  AppParentRouteRouteChildren,
+)
+
+interface AppRouteRouteChildren {
+  AppParentRouteRoute: typeof AppParentRouteRouteWithChildren
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppParentRouteRoute: AppParentRouteRouteWithChildren,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
+const rootRouteChildren = {
+  AppRouteRoute: AppRouteRouteWithChildren,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes()
+`;
+
 describe("Route Pruner Core Logic", () => {
   test("should prune route tree to include only the target and its ancestors", () => {
     const targetPath = "./routes/level-1/level-2/level-3";
@@ -222,42 +275,29 @@ describe("Route Pruner Core Logic", () => {
       import { Route as Level1RouteRouteImport } from '../route'
       import { Route as rootRouteImport } from '../../__root'
 
-      function idOrPath(input) {
-        const { id, path, ...rest } = input
-
-        if (path) {
-          return { path, ...rest }
-        }
-
-        return { id, ...rest }
-      }
-
-      const Level1Level2Level3Route = createRoute(idOrPath({
-      ...Level1Level2Level3RouteImport.options,
-      ...{
-        id: '/level-3',
-        path: '/level-3',
+      const Level1Level2Level3Route = createRoute({
+        ...Level1Level2Level3RouteImport.options,
         getParentRoute: () => Level1Level2RouteRoute,
-      }
-      }))
+      }).update({
+      id: '/level-3',
+      path: '/level-3',
+      })
 
-      const Level1Level2RouteRoute = createRoute(idOrPath({
-      ...Level1Level2RouteRouteImport.options,
-      ...{
-        id: '/level-2',
-        path: '/level-2',
+      const Level1Level2RouteRoute = createRoute({
+        ...Level1Level2RouteRouteImport.options,
         getParentRoute: () => Level1RouteRoute,
-      }
-      }))
+      }).update({
+      id: '/level-2',
+      path: '/level-2',
+      })
 
-      const Level1RouteRoute = createRoute(idOrPath({
-      ...Level1RouteRouteImport.options,
-      ...{
-        id: '/level-1',
-        path: '/level-1',
+      const Level1RouteRoute = createRoute({
+        ...Level1RouteRouteImport.options,
         getParentRoute: () => rootRouteImportClone,
-      }
-      }))
+      }).update({
+      id: '/level-1',
+      path: '/level-1',
+      })
       const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
         Level1Level2Level3Route,
@@ -294,42 +334,29 @@ describe("Route Pruner Core Logic", () => {
       import { Route as Level1RouteRouteImport } from '../route'
       import { Route as rootRouteBlaBla } from '../../__root'
 
-      function idOrPath(input) {
-        const { id, path, ...rest } = input
-
-        if (path) {
-          return { path, ...rest }
-        }
-
-        return { id, ...rest }
-      }
-
-      const Level1Level2Level3Route = createRoute(idOrPath({
-      ...Level1Level2Level3RouteImport.options,
-      ...{
-        id: '/level-3',
-        path: '/level-3',
+      const Level1Level2Level3Route = createRoute({
+        ...Level1Level2Level3RouteImport.options,
         getParentRoute: () => Level1Level2RouteRoute,
-      }
-      }))
+      }).update({
+      id: '/level-3',
+      path: '/level-3',
+      })
 
-      const Level1Level2RouteRoute = createRoute(idOrPath({
-      ...Level1Level2RouteRouteImport.options,
-      ...{
-        id: '/level-2',
-        path: '/level-2',
+      const Level1Level2RouteRoute = createRoute({
+        ...Level1Level2RouteRouteImport.options,
         getParentRoute: () => Level1RouteRoute,
-      }
-      }))
+      }).update({
+      id: '/level-2',
+      path: '/level-2',
+      })
 
-      const Level1RouteRoute = createRoute(idOrPath({
-      ...Level1RouteRouteImport.options,
-      ...{
-        id: '/level-1',
-        path: '/level-1',
+      const Level1RouteRoute = createRoute({
+        ...Level1RouteRouteImport.options,
         getParentRoute: () => rootRouteBlaBlaClone,
-      }
-      }))
+      }).update({
+      id: '/level-1',
+      path: '/level-1',
+      })
       const rootRouteBlaBlaClone = createRootRoute({...rootRouteBlaBla.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
         Level1Level2Level3Route,
@@ -370,24 +397,13 @@ describe("Route Pruner Core Logic", () => {
       import { Route as Level1RouteRouteImport } from './route'
       import { Route as rootRouteImport } from '../__root'
 
-      function idOrPath(input) {
-        const { id, path, ...rest } = input
-
-        if (path) {
-          return { path, ...rest }
-        }
-
-        return { id, ...rest }
-      }
-
-      const Level1RouteRoute = createRoute(idOrPath({
-      ...Level1RouteRouteImport.options,
-      ...{
-        id: '/level-1',
-        path: '/level-1',
+      const Level1RouteRoute = createRoute({
+        ...Level1RouteRouteImport.options,
         getParentRoute: () => rootRouteImportClone,
-      }
-      }))
+      }).update({
+      id: '/level-1',
+      path: '/level-1',
+      })
       const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
       const rootRouteImportCloneWithChildren = rootRouteImportClone._addFileChildren({
         Level1RouteRoute,
@@ -397,6 +413,62 @@ describe("Route Pruner Core Logic", () => {
 
       Level1RouteRoute.__root = routeTree
       export { Level1RouteRoute as Route }
+      export * from './route'
+      "
+    `);
+  });
+
+  test("should preserve empty string path in index routes", () => {
+    const targetPath = "./routes/_app/parent/index/route";
+    const pruned = pruneRouteTree(ROUTE_TREE_WITH_INDEX_ROUTE, targetPath);
+
+    expect(pruned).toMatchInlineSnapshot(`
+      "
+      import { createRoute, createRootRoute } from '@tanstack/react-router'
+      import { Route as AppParentIndexRouteImport } from './route'
+      import { Route as AppParentRouteRouteImport } from '../route'
+      import { Route as AppRouteRouteImport } from '../../route'
+      import { Route as rootRouteImport } from '../../../__root'
+
+      const AppParentIndexRouteRoute = createRoute({
+        ...AppParentIndexRouteImport.options,
+        getParentRoute: () => AppParentRouteRoute,
+      }).update({
+      id: '/',
+      path: '',
+      })
+
+      const AppParentRouteRoute = createRoute({
+        ...AppParentRouteRouteImport.options,
+        getParentRoute: () => AppRouteRoute,
+      }).update({
+      id: '/parent',
+      path: '/parent',
+      })
+
+      const AppRouteRoute = createRoute({
+        ...AppRouteRouteImport.options,
+        getParentRoute: () => rootRouteImportClone,
+      }).update({
+      id: '/_app',
+      })
+      const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
+      const AppParentRouteRouteWithChildren = AppParentRouteRoute._addFileChildren({
+        AppParentIndexRouteRoute,
+      })
+
+      const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren({
+        AppParentRouteRouteWithChildren,
+      })
+
+      const rootRouteImportCloneWithChildren = rootRouteImportClone._addFileChildren({
+        AppRouteRouteWithChildren,
+      })
+
+      export const routeTree = rootRouteImportCloneWithChildren
+
+      AppParentIndexRouteRoute.__root = routeTree
+      export { AppParentIndexRouteRoute as Route }
       export * from './route'
       "
     `);

@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.4.0](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.3.0...0.4.0) (2026-09-23)
+
+
+### Features
+
+* implement import attributes `with { ancestors: "full" }` ([#6](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/issues/6)) ([916c5c8](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/commit/916c5c8109ba46c7a00d40fb744fec535bab1c57))
+
 # [0.3.0](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.2.0...0.3.0) (2026-09-23)
 
 

@@ -1,1 +1,1 @@
-export { routeTree, Route } from "./level-3.tsx?tree";
+export * from "./level-3" with { ancestors: "full" };

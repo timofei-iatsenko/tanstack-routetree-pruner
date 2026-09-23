@@ -27,18 +27,9 @@ export default defineConfig({
 });
 ```
 
-Add types to `vite-env.d.ts`:
-
-```ts
-declare module "*?tree" {
-  import { Route } from "@tanstack/react-router";
-  export const routeTree: Route;
-}
-```
-
 ## Usage
 
-Now you will be able to import a specific route **with all ancestors** and to your test or story file and test it in isolation.
+Now you will be able to import a specific route **with all ancestors** to your test or story file and test it in isolation using [ES import attributes](https://github.com/tc39/proposal-import-attributes).
 
 Say you have `/home` route (`./src/routes/home.tsx`) which you want to write a Storybook Story for
 
@@ -51,11 +42,10 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 
-import { Route } from "./home";
-import { routeTree } from "./home?tree"; // <- add ?tree suffix to the route file to get a full routeTree
+import { Route } from "./home" with { ancestors: "full" };
 
 const router = createRouter({
-  routeTree: routeTree,
+  routeTree: Route.__root, // pruned routeTree would be stored in this property
   history: createMemoryHistory({
     initialEntries: ["/"],
   }),
@@ -72,6 +62,24 @@ const meta: Meta = {
     },
   ],
 };
+```
+
+The `with { ancestors: "full" }` import attribute tells the plugin to attach a pruned route tree containing only the target route and its ancestors.
+
+The pruned tree is assigned to `Route.__root`, so you can pass it directly to `createRouter`.
+
+### TypeScript support
+
+To access `Route.__root` without a type error, add the following type augmentation to your project (e.g. in `vite-env.d.ts` or a dedicated `.d.ts` file):
+
+```ts
+import { AnyRootRoute } from "@tanstack/react-router";
+
+declare module "@tanstack/router-core" {
+  interface RouteExtensions<TId, TFullPath> {
+    __root: AnyRootRoute;
+  }
+}
 ```
 
 ## License

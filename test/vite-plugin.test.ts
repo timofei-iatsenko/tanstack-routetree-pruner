@@ -28,8 +28,8 @@ describe("vite-plugin", () => {
     `);
 
     const route = bundle.Route as Route;
-    route.init({ originalIndex: 0 });
-    expect(route.id).toBe("/level-1/level-2/level-3");
+    expect(route.options.getParentRoute()).toBeDefined();
+    expect((route as any).__root).toBe(routeTree);
   });
 });
 

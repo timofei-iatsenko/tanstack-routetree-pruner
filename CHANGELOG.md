@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.3.0](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.2.0...0.3.0) (2026-09-23)
+
+
+### Features
+
+* clone route tree to avoid side effects ([#5](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/issues/5)) ([b1bbba7](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/commit/b1bbba7b467dbd90ad8cc45ae21c098d34a71ae1))
+
 # [0.2.0](https://github.com/timofei-iatsenko/tanstack-routetree-pruner/compare/0.1.0...0.2.0) (2026-09-21)
 
 

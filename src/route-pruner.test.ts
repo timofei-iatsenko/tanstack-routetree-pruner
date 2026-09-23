@@ -216,28 +216,30 @@ describe("Route Pruner Core Logic", () => {
 
     expect(pruned).toMatchInlineSnapshot(`
       "
+      import { createRoute, createRootRoute } from '@tanstack/react-router'
       import { Route as Level1Level2Level3RouteImport } from './level-3'
       import { Route as Level1Level2RouteRouteImport } from './route'
       import { Route as Level1RouteRouteImport } from '../route'
       import { Route as rootRouteImport } from '../../__root'
 
-      const Level1Level2Level3Route = Level1Level2Level3RouteImport.update({
+      const Level1Level2Level3Route = createRoute({}).update({...Level1Level2Level3RouteImport.options,
         id: '/level-3',
         path: '/level-3',
         getParentRoute: () => Level1Level2RouteRoute,
       })
 
-      const Level1Level2RouteRoute = Level1Level2RouteRouteImport.update({
+      const Level1Level2RouteRoute = createRoute({}).update({...Level1Level2RouteRouteImport.options,
         id: '/level-2',
         path: '/level-2',
         getParentRoute: () => Level1RouteRoute,
       })
 
-      const Level1RouteRoute = Level1RouteRouteImport.update({
+      const Level1RouteRoute = createRoute({}).update({...Level1RouteRouteImport.options,
         id: '/level-1',
         path: '/level-1',
-        getParentRoute: () => rootRouteImport,
+        getParentRoute: () => rootRouteImportClone,
       })
+      const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
         Level1Level2Level3Route,
       })
@@ -246,13 +248,13 @@ describe("Route Pruner Core Logic", () => {
         Level1Level2RouteRouteWithChildren,
       })
 
-      const rootRouteImportWithChildren = rootRouteImport._addFileChildren({
+      const rootRouteImportCloneWithChildren = rootRouteImportClone._addFileChildren({
         Level1RouteRouteWithChildren,
       })
 
-      export const routeTree = rootRouteImportWithChildren
+      export const routeTree = rootRouteImportCloneWithChildren
 
-      export { Level1Level2Level3RouteImport as Route }
+      export { Level1Level2Level3Route as Route }
       "
     `);
   });
@@ -265,28 +267,30 @@ describe("Route Pruner Core Logic", () => {
 
     expect(pruned).toMatchInlineSnapshot(`
       "
+      import { createRoute, createRootRoute } from '@tanstack/react-router'
       import { Route as Level1Level2Level3RouteImport } from './level-3'
       import { Route as Level1Level2RouteRouteImport } from './route'
       import { Route as Level1RouteRouteImport } from '../route'
       import { Route as rootRouteBlaBla } from '../../__root'
 
-      const Level1Level2Level3Route = Level1Level2Level3RouteImport.update({
+      const Level1Level2Level3Route = createRoute({}).update({...Level1Level2Level3RouteImport.options,
         id: '/level-3',
         path: '/level-3',
         getParentRoute: () => Level1Level2RouteRoute,
       })
 
-      const Level1Level2RouteRoute = Level1Level2RouteRouteImport.update({
+      const Level1Level2RouteRoute = createRoute({}).update({...Level1Level2RouteRouteImport.options,
         id: '/level-2',
         path: '/level-2',
         getParentRoute: () => Level1RouteRoute,
       })
 
-      const Level1RouteRoute = Level1RouteRouteImport.update({
+      const Level1RouteRoute = createRoute({}).update({...Level1RouteRouteImport.options,
         id: '/level-1',
         path: '/level-1',
-        getParentRoute: () => rootRouteBlaBla,
+        getParentRoute: () => rootRouteBlaBlaClone,
       })
+      const rootRouteBlaBlaClone = createRootRoute({...rootRouteBlaBla.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
         Level1Level2Level3Route,
       })
@@ -295,13 +299,13 @@ describe("Route Pruner Core Logic", () => {
         Level1Level2RouteRouteWithChildren,
       })
 
-      const rootRouteBlaBlaWithChildren = rootRouteBlaBla._addFileChildren({
+      const rootRouteBlaBlaCloneWithChildren = rootRouteBlaBlaClone._addFileChildren({
         Level1RouteRouteWithChildren,
       })
 
-      export const routeTree = rootRouteBlaBlaWithChildren
+      export const routeTree = rootRouteBlaBlaCloneWithChildren
 
-      export { Level1Level2Level3RouteImport as Route }
+      export { Level1Level2Level3Route as Route }
       "
     `);
   });
@@ -320,21 +324,23 @@ describe("Route Pruner Core Logic", () => {
 
     expect(pruned).toMatchInlineSnapshot(`
       "
+      import { createRoute, createRootRoute } from '@tanstack/react-router'
       import { Route as Level1RouteRouteImport } from './route'
       import { Route as rootRouteImport } from '../__root'
 
-      const Level1RouteRoute = Level1RouteRouteImport.update({
+      const Level1RouteRoute = createRoute({}).update({...Level1RouteRouteImport.options,
         id: '/level-1',
         path: '/level-1',
-        getParentRoute: () => rootRouteImport,
+        getParentRoute: () => rootRouteImportClone,
       })
-      const rootRouteImportWithChildren = rootRouteImport._addFileChildren({
+      const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
+      const rootRouteImportCloneWithChildren = rootRouteImportClone._addFileChildren({
         Level1RouteRoute,
       })
 
-      export const routeTree = rootRouteImportWithChildren
+      export const routeTree = rootRouteImportCloneWithChildren
 
-      export { Level1RouteRouteImport as Route }
+      export { Level1RouteRoute as Route }
       "
     `);
   });

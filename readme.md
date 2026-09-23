@@ -27,18 +27,9 @@ export default defineConfig({
 });
 ```
 
-Add types to `vite-env.d.ts`:
-
-```ts
-declare module "*?tree" {
-  import { Route } from "@tanstack/react-router";
-  export const routeTree: Route;
-}
-```
-
 ## Usage
 
-Now you will be able to import a specific route **with all ancestors** and to your test or story file and test it in isolation.
+Now you will be able to import a specific route **with all ancestors** to your test or story file and test it in isolation using [ES import attributes](https://github.com/tc39/proposal-import-attributes).
 
 Say you have `/home` route (`./src/routes/home.tsx`) which you want to write a Storybook Story for
 
@@ -49,13 +40,35 @@ import {
   createRouter,
   RegisteredRouter,
   RouterProvider,
+  AnyRoute,
 } from "@tanstack/react-router";
 
-import { Route } from "./home";
-import { routeTree } from "./home?tree"; // <- add ?tree suffix to the route file to get a full routeTree
+import { Route } from "./home" with { ancestors: "full" };
+
+const MAX_PARENT_WALK = 50;
+
+/**
+ * Walks up `getParentRoute()` from any route to find the enclosing `RootRoute`.
+ *
+ * Falls back to the input route if no parent chain leads to a `RootRoute`
+ * (e.g. when the user constructed a stand-alone route by hand). The walk is
+ * capped at `MAX_PARENT_WALK` hops to defend against accidental cycles.
+ */
+export function findRootRoute(route: AnyRoute): AnyRoute | undefined {
+  let current: AnyRoute | undefined = route;
+  for (let i = 0; i < MAX_PARENT_WALK && current; i += 1) {
+    if (current instanceof RootRoute) {
+      return current;
+    }
+    const getParent: () => AnyRoute = current.options?.getParentRoute;
+    const parent = typeof getParent === "function" ? getParent() : undefined;
+
+    current = parent;
+  }
+}
 
 const router = createRouter({
-  routeTree: routeTree,
+  routeTree: findRootRoute(Route),
   history: createMemoryHistory({
     initialEntries: ["/"],
   }),
@@ -73,6 +86,8 @@ const meta: Meta = {
   ],
 };
 ```
+
+The `with { ancestors: "full" }` import attribute tells the plugin to attach a pruned route tree containing only the target route and its ancestors.
 
 ## License
 

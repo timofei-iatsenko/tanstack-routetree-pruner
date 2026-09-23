@@ -1,33 +1,43 @@
 import type { Plugin } from "vite";
 import * as path from "path";
 import * as fs from "fs";
-import { pruneRouteTree } from "./route-pruner"; // Import the new core logic
+import MagicString from "magic-string";
+import { pruneRouteTree } from "./route-pruner.js";
 
 const SUFFIX = "?tree";
-const ROUTE_TREE_FILE = "routeTree.gen.ts"; // Assumed to be in project root for simplicity
+const ROUTE_TREE_FILE = "routeTree.gen.ts";
+
+const IMPORT_ATTR_RE =
+  /(from\s+)(["'])(.*?)\2\s+with\s*\{\s*ancestors\s*:\s*["']full["']\s*\}/g;
 
 function getErrorModuleSource(errorMessage: string) {
-  // Prefix the error message so the user knows where it came from
   return `export const routeTree = {}; export const Route = {}; throw new Error("RouteTreePruner: ${errorMessage}");`;
 }
 
-/**
- * Prunes the TanStack Router route tree defined in routeTree.gen.ts to only
- * include the requested route and its ancestors.
- * * @param rootDir The project root directory where routeTree.gen.ts is located.
- * @returns A Vite Plugin object.
- */
 export default function TanstackRouteTreePrunerPlugin(rootDir: string): Plugin {
   const routeTreePath = path.resolve(rootDir, ROUTE_TREE_FILE);
 
   return {
     name: "tanstack-route-tree-pruner",
     enforce: "pre",
-    // 2. Load the virtual module content
+
+    transform: {
+      filter: {
+        code: /\bwith\s*\{\s*ancestors\s*:/,
+      },
+      handler(code) {
+        const s = new MagicString(code);
+        s.replace(IMPORT_ATTR_RE, "$1$2$3?tree$2");
+
+        if (s.hasChanged()) {
+          return { code: s.toString(), map: s.generateMap({ hires: true }) };
+        }
+      },
+    },
 
     load: {
       filter: {
-        id: new RegExp(".*\\?" + SUFFIX + "$"),
+        id: /\?tree$/,
       },
       handler(id) {
         if (!id.endsWith(SUFFIX)) {
@@ -51,7 +61,6 @@ export default function TanstackRouteTreePrunerPlugin(rootDir: string): Plugin {
         const routeTreeContent = fs.readFileSync(routeTreePath, "utf-8");
 
         try {
-          // Delegate the heavy lifting to the core pruner logic
           const prunedContent = pruneRouteTree(
             routeTreeContent,
             relativeRoutePath,

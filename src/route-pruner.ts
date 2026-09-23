@@ -250,8 +250,6 @@ export function pruneRouteTree(
   const rootConstName = rootMapping?.routeConstName ?? "";
 
   const result = traceAncestry(targetRouteMap, rootConstName);
-  const exportName = targetRouteMap.definitionCode
-    ? targetRouteMap.routeConstName
-    : `${targetRouteMap.routeConstName}Clone`;
-  return result + `export { ${exportName} as Route }\n`;
+  const selfRelativePath = "./" + path.basename(targetRelativePath);
+  return result + `export * from '${selfRelativePath}'\n`;
 }

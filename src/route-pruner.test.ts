@@ -1,4 +1,4 @@
-import { pruneRouteTree } from "./route-pruner";
+import { pruneRouteTree } from "./route-pruner.js";
 import { expect, test, describe } from "vitest";
 
 const ROUTE_TREE_CONTENT = `/* eslint-disable */
@@ -254,7 +254,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteImportCloneWithChildren
 
-      export { Level1Level2Level3Route as Route }
+      export * from './level-3'
       "
     `);
   });
@@ -305,7 +305,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteBlaBlaCloneWithChildren
 
-      export { Level1Level2Level3Route as Route }
+      export * from './level-3'
       "
     `);
   });
@@ -340,7 +340,7 @@ describe("Route Pruner Core Logic", () => {
 
       export const routeTree = rootRouteImportCloneWithChildren
 
-      export { Level1RouteRoute as Route }
+      export * from './route'
       "
     `);
   });

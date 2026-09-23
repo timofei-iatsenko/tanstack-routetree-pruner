@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2023",
     "jsx": "preserve",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

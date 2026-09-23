@@ -28,7 +28,7 @@ describe("vite-plugin", () => {
     `);
 
     const route = bundle.Route as Route;
-    expect(route.options.component).toBeDefined();
+    expect(route.options.getParentRoute()).toBeDefined();
     expect((route as any).__root).toBe(routeTree);
   });
 });

@@ -6,6 +6,7 @@ interface RouteMapping {
   definitionCode: string; // Full code for the const declaration
   parent?: RouteMapping;
   import: ImportDefinition;
+  routeOptionsCode: string;
 }
 
 interface ImportDefinition {
@@ -89,6 +90,7 @@ function parseRouteTree(content: string, targetRelativePath: string) {
         .getArguments()[0]
         .getFirstChildByKindOrThrow(SyntaxKind.ObjectLiteralExpression);
 
+      const routeOptionsCode = objectLiteral.getText();
       // 5. Find the 'getParentRoute' property assignment
       const parentRouteName = objectLiteral
         .getProperty("getParentRoute")
@@ -110,6 +112,7 @@ function parseRouteTree(content: string, targetRelativePath: string) {
         routeImportName: importName,
         parentConstName: parentRouteName,
         definitionCode: variableDeclaration.getParent().getText(),
+        routeOptionsCode,
       };
     });
 
@@ -121,14 +124,20 @@ function parseRouteTree(content: string, targetRelativePath: string) {
     mappings.set(rootImport.importName, {
       routeConstName: rootImport.importName,
       definitionCode: "", // No .update() definition for root
+      routeOptionsCode: "", // No .update() definition for root
       import: rootImport,
     });
   }
 
   // 2. Collect Route Constants and link with Imports
   for (const decl of routeDeclarations) {
-    const { definitionCode, routeConstName, routeImportName, parentConstName } =
-      decl;
+    const {
+      definitionCode,
+      routeConstName,
+      routeOptionsCode,
+      routeImportName,
+      parentConstName,
+    } = decl;
 
     // Check if the route is defined using an imported variable
     const importData = importsMap.get(routeImportName);
@@ -139,6 +148,7 @@ function parseRouteTree(content: string, targetRelativePath: string) {
         routeConstName,
         parent: parentConstName ? mappings.get(parentConstName) : undefined,
         definitionCode,
+        routeOptionsCode,
         import: importData,
       });
     }
@@ -166,10 +176,7 @@ function traceAncestry(
   requiredImports.push(current.import.importCode);
 
   if (current.definitionCode) {
-    let clonedDef = current.definitionCode.replace(
-      `${current.import.importName}.update({`,
-      `createRoute({}).update({...${current.import.importName}.options,`,
-    );
+    let clonedDef = `const ${current.routeConstName} = createRoute(idOrPath({\n...${current.import.importName}.options,\n...${current.routeOptionsCode}\n}))`;
     if (current.parent?.routeConstName === rootConstName) {
       clonedDef = clonedDef.replace(
         `() => ${rootConstName}`,
@@ -194,6 +201,16 @@ function traceAncestry(
     return `
 import { createRoute, createRootRoute } from '@tanstack/react-router'
 ${imports}
+
+function idOrPath(input) {
+  const { id, path, ...rest } = input
+
+  if (path) {
+    return { path, ...rest }
+  }
+
+  return { id, ...rest }
+}
 
 ${routeDefinitions}
 ${rootCloneDef}
@@ -251,9 +268,11 @@ export function pruneRouteTree(
 
   const result = traceAncestry(targetRouteMap, rootConstName);
   const selfRelativePath = "./" + path.basename(targetRelativePath);
-  const targetImportName = targetRouteMap.import.importName;
+  const exportName = targetRouteMap.definitionCode
+    ? targetRouteMap.routeConstName
+    : `${targetRouteMap.routeConstName}Clone`;
   return (
     result +
-    `${targetImportName}.__root = routeTree\nexport * from '${selfRelativePath}'\n`
+    `${exportName}.__root = routeTree\nexport { ${exportName} as Route }\nexport * from '${selfRelativePath}'\n`
   );
 }

@@ -28,7 +28,7 @@ Vite plugin with two hooks:
 
 Core logic that takes the full `routeTree.gen.ts` content and a target route path, then:
 
-1. **`parseRouteTree()`** — Uses `ts-morph` to parse imports, route `.update()` calls, and parent relationships into a `Map<string, RouteMapping>`.
+1. **`parseRouteTree()`** — Uses `oxc-parser` to parse imports, route `.update()` calls, and parent relationships into a `Map<string, RouteMapping>`. Extracts text from the source via `content.slice(start, end)` using AST node positions.
 2. **`traceAncestry()`** — Walks from the target route up to the root, collecting imports and generating cloned route definitions (`createRoute(idOrPath({...OriginalImport.options, ...routeOptions}))`).
 3. **`pruneRouteTree()`** — Orchestrates parsing and ancestry tracing, produces the final virtual module that exports `routeTree`, a cloned `Route` (with `__root` set to the tree), and re-exports everything else from the original route file via `export *`.
 

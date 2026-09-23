@@ -238,6 +238,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-3',
         path: '/level-3',
         getParentRoute: () => Level1Level2RouteRoute,
+      }
       }))
 
       const Level1Level2RouteRoute = createRoute(idOrPath({
@@ -246,6 +247,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-2',
         path: '/level-2',
         getParentRoute: () => Level1RouteRoute,
+      }
       }))
 
       const Level1RouteRoute = createRoute(idOrPath({
@@ -254,6 +256,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-1',
         path: '/level-1',
         getParentRoute: () => rootRouteImportClone,
+      }
       }))
       const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
@@ -307,6 +310,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-3',
         path: '/level-3',
         getParentRoute: () => Level1Level2RouteRoute,
+      }
       }))
 
       const Level1Level2RouteRoute = createRoute(idOrPath({
@@ -315,6 +319,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-2',
         path: '/level-2',
         getParentRoute: () => Level1RouteRoute,
+      }
       }))
 
       const Level1RouteRoute = createRoute(idOrPath({
@@ -323,6 +328,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-1',
         path: '/level-1',
         getParentRoute: () => rootRouteBlaBlaClone,
+      }
       }))
       const rootRouteBlaBlaClone = createRootRoute({...rootRouteBlaBla.options})
       const Level1Level2RouteRouteWithChildren = Level1Level2RouteRoute._addFileChildren({
@@ -380,6 +386,7 @@ describe("Route Pruner Core Logic", () => {
         id: '/level-1',
         path: '/level-1',
         getParentRoute: () => rootRouteImportClone,
+      }
       }))
       const rootRouteImportClone = createRootRoute({...rootRouteImport.options})
       const rootRouteImportCloneWithChildren = rootRouteImportClone._addFileChildren({

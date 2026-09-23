@@ -1,9 +1,8 @@
-import { Project, SyntaxKind } from "ts-morph";
+import { parseSync } from "oxc-parser";
 import path from "node:path";
 
 interface RouteMapping {
   routeConstName: string;
-  definitionCode: string; // Full code for the const declaration
   parent?: RouteMapping;
   import: ImportDefinition;
   routeOptionsCode: string;
@@ -22,99 +21,111 @@ interface ImportDefinition {
 function parseRouteTree(content: string, targetRelativePath: string) {
   const importsMap = new Map<string, ImportDefinition>();
 
-  const project = new Project();
-  const sourceFile = project.createSourceFile("routeTree.gen.ts", content);
+  const result = parseSync("routeTree.gen.ts", content);
+  const ast = result.program;
 
-  // 1. Collect all Imports
-  sourceFile.getImportDeclarations().forEach((declaration) => {
-    if (declaration.getNamedImports()[0].getName() !== "Route") {
-      return;
-    }
+  // 1. Collect all Imports using ESM module info
+  for (const imp of result.module.staticImports) {
+    const entry = imp.entries[0];
+    if (
+      !entry ||
+      entry.importName.kind !== "Name" ||
+      entry.importName.name !== "Route"
+    )
+      continue;
 
-    const importName = declaration
-      .getNamedImports()[0]
-      .getAliasNode()
-      ?.getText();
-
-    if (!importName) {
+    const importName = entry.localName.value;
+    if (importName === "Route") {
       throw new Error("Import should be Aliased incorrect structure");
     }
 
-    const relativePath = declaration.getModuleSpecifierValue();
+    const relativePath = imp.moduleRequest.value;
 
     const newRelativePath = path.relative(
       path.resolve(targetRelativePath, "../"),
-      declaration.getModuleSpecifierValue(),
+      relativePath,
     );
 
-    declaration.setModuleSpecifier(
-      !newRelativePath.startsWith(".")
-        ? "./" + newRelativePath
-        : newRelativePath,
-    );
+    const adjustedPath = !newRelativePath.startsWith(".")
+      ? "./" + newRelativePath
+      : newRelativePath;
 
     importsMap.set(importName, {
       importName: importName,
       relativePath: relativePath,
-      importCode: declaration.getText(),
+      importCode: `import { Route as ${importName} } from '${adjustedPath}'`,
     });
-
-    return {};
-  });
+  }
 
   const mappings = new Map<string, RouteMapping>();
 
-  const routeDeclarations = sourceFile
-    .getVariableDeclarations()
-    .filter((variableDeclaration) => {
-      return variableDeclaration.getName().endsWith("Route");
-    })
-    .map((variableDeclaration) => {
-      const variableName = variableDeclaration.getName();
+  // 2. Collect Route Constants and link with Imports
+  interface RouteDeclaration {
+    routeConstName: string;
+    routeImportName: string;
+    parentConstName: string | undefined;
+    routeOptionsCode: string;
+  }
 
-      // The initializer is PostalRequestCodeImport.update({...}) as any
-      const callExpression = variableDeclaration.getInitializerIfKindOrThrow(
-        SyntaxKind.CallExpression,
-      );
+  const routeDeclarations: RouteDeclaration[] = [];
 
-      // 3. The function being called is a PropertyAccessExpression (e.g., Import.update)
-      const propertyAccess = callExpression.getExpressionIfKindOrThrow(
-        SyntaxKind.PropertyAccessExpression,
-      );
+  for (const node of ast.body) {
+    if (node.type !== "VariableDeclaration") continue;
 
-      // Extract the Import Name from the expression before '.update'
-      const importName = propertyAccess.getExpression().getText();
+    for (const decl of node.declarations) {
+      if (decl.id.type !== "Identifier") continue;
 
-      // 4. Get the first argument of the call (the route object literal: {...})
-      const objectLiteral = callExpression
-        .getArguments()[0]
-        .getFirstChildByKindOrThrow(SyntaxKind.ObjectLiteralExpression);
+      const variableName = decl.id.name;
+      if (!variableName.endsWith("Route")) continue;
 
-      const routeOptionsCode = objectLiteral.getText();
-      // 5. Find the 'getParentRoute' property assignment
-      const parentRouteName = objectLiteral
-        .getProperty("getParentRoute")
-        ?.asKindOrThrow(SyntaxKind.PropertyAssignment)
-        ?.getInitializer()
-        ?.getFirstChildByKindOrThrow(SyntaxKind.Identifier)
-        .getText();
+      const init = decl.init;
+      if (!init || init.type !== "CallExpression") continue;
 
-      // remove `as any`
-      variableDeclaration
-        .getParent()
-        .getDescendantsOfKind(SyntaxKind.AsExpression)
-        .forEach((asExpr) => {
-          asExpr.replaceWithText(asExpr.getExpression().getText());
-        });
+      const callee = init.callee;
+      if (callee.type !== "MemberExpression") continue;
+      if (
+        callee.property.type !== "Identifier" ||
+        callee.property.name !== "update"
+      )
+        continue;
 
-      return {
+      const importName =
+        callee.object.type === "Identifier" ? callee.object.name : "";
+
+      // Unwrap TSAsExpression to get the ObjectExpression
+      let arg = init.arguments[0];
+      if (arg.type === "TSAsExpression") {
+        arg = arg.expression;
+      }
+      if (arg.type !== "ObjectExpression") continue;
+
+      // Find getParentRoute property
+      let parentRouteName: string | undefined;
+      for (const prop of arg.properties) {
+        if (prop.type !== "Property") continue;
+        if (
+          prop.key.type !== "Identifier" ||
+          prop.key.name !== "getParentRoute"
+        )
+          continue;
+
+        if (
+          prop.value.type === "ArrowFunctionExpression" &&
+          prop.value.body.type === "Identifier"
+        ) {
+          parentRouteName = prop.value.body.name;
+        }
+        break;
+      }
+
+      routeDeclarations.push({
         routeConstName: variableName,
         routeImportName: importName,
         parentConstName: parentRouteName,
-        definitionCode: variableDeclaration.getParent().getText(),
-        routeOptionsCode,
-      };
-    });
+        routeOptionsCode: content.slice(arg.start, arg.end),
+      });
+    }
+  }
 
   const rootImport = [...importsMap.values()].find((imp) => {
     return imp.relativePath.endsWith("__root");
@@ -123,7 +134,6 @@ function parseRouteTree(content: string, targetRelativePath: string) {
   if (rootImport) {
     mappings.set(rootImport.importName, {
       routeConstName: rootImport.importName,
-      definitionCode: "", // No .update() definition for root
       routeOptionsCode: "", // No .update() definition for root
       import: rootImport,
     });
@@ -132,7 +142,6 @@ function parseRouteTree(content: string, targetRelativePath: string) {
   // 2. Collect Route Constants and link with Imports
   for (const decl of routeDeclarations) {
     const {
-      definitionCode,
       routeConstName,
       routeOptionsCode,
       routeImportName,
@@ -147,7 +156,6 @@ function parseRouteTree(content: string, targetRelativePath: string) {
       mappings.set(routeConstName, {
         routeConstName,
         parent: parentConstName ? mappings.get(parentConstName) : undefined,
-        definitionCode,
         routeOptionsCode,
         import: importData,
       });
@@ -175,7 +183,7 @@ function traceAncestry(
   // Add current route's import and definition
   requiredImports.push(current.import.importCode);
 
-  if (current.definitionCode) {
+  if (current.routeOptionsCode) {
     let clonedDef = `const ${current.routeConstName} = createRoute(idOrPath({\n...${current.import.importName}.options,\n...${current.routeOptionsCode}\n}))`;
     if (current.parent?.routeConstName === rootConstName) {
       clonedDef = clonedDef.replace(
@@ -268,7 +276,7 @@ export function pruneRouteTree(
 
   const result = traceAncestry(targetRouteMap, rootConstName);
   const selfRelativePath = "./" + path.basename(targetRelativePath);
-  const exportName = targetRouteMap.definitionCode
+  const exportName = targetRouteMap.routeOptionsCode
     ? targetRouteMap.routeConstName
     : `${targetRouteMap.routeConstName}Clone`;
   return (

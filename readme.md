@@ -44,8 +44,30 @@ import {
 
 import { Route } from "./home" with { ancestors: "full" };
 
+const MAX_PARENT_WALK = 50;
+
+/**
+ * Walks up `getParentRoute()` from any route to find the enclosing `RootRoute`.
+ *
+ * Falls back to the input route if no parent chain leads to a `RootRoute`
+ * (e.g. when the user constructed a stand-alone route by hand). The walk is
+ * capped at `MAX_PARENT_WALK` hops to defend against accidental cycles.
+ */
+export function findRootRoute(route: AnyRoute): AnyRoute | undefined {
+  let current: AnyRoute | undefined = route;
+  for (let i = 0; i < MAX_PARENT_WALK && current; i += 1) {
+    if (current instanceof RootRoute) {
+      return current;
+    }
+    const getParent: () => AnyRoute = current.options?.getParentRoute;
+    const parent = typeof getParent === "function" ? getParent() : undefined;
+
+    current = parent;
+  }
+}
+
 const router = createRouter({
-  routeTree: Route.__root, // pruned routeTree would be stored in this property
+  routeTree: findRootRoute(Route), // You can get root by walking up the tree
   history: createMemoryHistory({
     initialEntries: ["/"],
   }),
@@ -65,22 +87,6 @@ const meta: Meta = {
 ```
 
 The `with { ancestors: "full" }` import attribute tells the plugin to attach a pruned route tree containing only the target route and its ancestors.
-
-The pruned tree is assigned to `Route.__root`, so you can pass it directly to `createRouter`.
-
-### TypeScript support
-
-To access `Route.__root` without a type error, add the following type augmentation to your project (e.g. in `vite-env.d.ts` or a dedicated `.d.ts` file):
-
-```ts
-import { AnyRootRoute } from "@tanstack/react-router";
-
-declare module "@tanstack/router-core" {
-  interface RouteExtensions<TId, TFullPath> {
-    __root: AnyRootRoute;
-  }
-}
-```
 
 ## License
 

@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "magic-string": "^1.4.1",
-    "ts-morph": "^27.0.2"
+    "oxc-parser": "^0.151.0"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^10.0.6",
